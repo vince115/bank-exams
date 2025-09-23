@@ -1,0 +1,30 @@
+# Build artifacts
+bin/
+obj/
+[Bb]uild/
+[Dd]ebug*/
+[Rr]elease*/
+x64/
+x86/
+*.exe
+*.dll
+*.pdb
+*.cache
+
+# IDE/OS
+.vs/
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# NuGet / Test
+packages/
+*.nupkg
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+
+# Logs
+*.log
