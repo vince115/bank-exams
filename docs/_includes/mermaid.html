@@ -1,25 +1,58 @@
 <script defer src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <script>
     (function () {
-        function toMermaidDivs() {
+        function toMermaidDivs(root = document) {
             const codes = new Set();
-            document.querySelectorAll('pre code.language-mermaid').forEach(c => codes.add(c));
-            document.querySelectorAll('div.language-mermaid pre code').forEach(c => codes.add(c));
-            document.querySelectorAll('code[data-lang="mermaid"]').forEach(c => codes.add(c));
+            // 1) 標準 ```mermaid → <pre><code class="language-mermaid">
+            root.querySelectorAll('pre code.language-mermaid').forEach(c => codes.add(c));
+            // 2) GitHub Pages/Jekyll/Rouge 包裝
+            root.querySelectorAll('div.language-mermaid pre code').forEach(c => codes.add(c));
+            // 3) 備援
+            root.querySelectorAll('code[data-lang="mermaid"]').forEach(c => codes.add(c));
+
             codes.forEach(code => {
                 const wrapper = code.closest('.language-mermaid') || code.closest('pre') || code.parentElement;
-                const div = document.createElement('div');
-                div.className = 'mermaid';
-                div.textContent = code.textContent;
-                wrapper.replaceWith(div);
+                if (wrapper && !wrapper.dataset.mermaidUpgraded) {
+                    const div = document.createElement('div');
+                    div.className = 'mermaid';
+                    div.textContent = code.textContent; // 保留純文字，避免 << >> 被吃掉
+                    wrapper.dataset.mermaidUpgraded = '1';
+                    wrapper.replaceWith(div);
+                }
             });
         }
-        function runMermaid() {
-            if (!window.mermaid) { setTimeout(runMermaid, 50); return; }
-            mermaid.initialize({ startOnLoad: false, securityLevel: 'loose' });
-            mermaid.run({ querySelector: '.mermaid' });
+
+        function renderMermaid(root = document) {
+            if (!window.mermaid) { setTimeout(() => renderMermaid(root), 50); return; }
+            try {
+                mermaid.initialize({ startOnLoad: false, securityLevel: 'loose' });
+                // 只渲染目標區塊內的 .mermaid，避免重複
+                const selector = root === document ? '.mermaid' : ':scope .mermaid';
+                mermaid.run({ querySelector: selector });
+            } catch (e) {
+                console.error('Mermaid render error:', e);
+            }
         }
-        function init(){ toMermaidDivs(); runMermaid(); }
-        (document.readyState === 'loading') ? document.addEventListener('DOMContentLoaded', init) : init();
+
+        function onDetailsToggle(e) {
+            const el = e.target;
+            if (!el.open) return;          // 只在展開時處理
+            toMermaidDivs(el);              // 裡面若有 ```mermaid → 轉成 <div class="mermaid">
+            renderMermaid(el);              // 只渲染這個 details 裡的圖
+        }
+
+        function init() {
+            // 初次渲染（給非 <details> 的圖）
+            toMermaidDivs(document);
+            renderMermaid(document);
+            // 針對 <details>：展開時再轉換 + 渲染一次
+            document.querySelectorAll('details').forEach(d => {
+                d.addEventListener('toggle', onDetailsToggle);
+            });
+        }
+
+        (document.readyState === 'loading')
+            ? document.addEventListener('DOMContentLoaded', init)
+            : init();
     })();
 </script>
