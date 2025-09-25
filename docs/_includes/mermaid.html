@@ -3,50 +3,23 @@
     (function () {
         function toMermaidDivs() {
             const codes = new Set();
-            // 1) 標準：```mermaid → <pre><code class="language-mermaid">
-            document
-                .querySelectorAll("pre code.language-mermaid")
-                .forEach((c) => codes.add(c));
-            // 2) Jekyll/Rouge：<div class="language-mermaid"><div class="highlight"><pre><code>…</code></pre></div></div>
-            document
-                .querySelectorAll("div.language-mermaid pre code")
-                .forEach((c) => codes.add(c));
-            // 3) 備援：<code data-lang="mermaid">
-            document
-                .querySelectorAll('code[data-lang="mermaid"]')
-                .forEach((c) => codes.add(c));
-
-            codes.forEach((code) => {
-                const wrapper =
-                    code.closest(".language-mermaid") ||
-                    code.closest("pre") ||
-                    code.parentElement;
-                const div = document.createElement("div");
-                div.className = "mermaid";
-                div.textContent = code.textContent; // 用純文字避免 << >> 被吃掉
+            document.querySelectorAll('pre code.language-mermaid').forEach(c => codes.add(c));
+            document.querySelectorAll('div.language-mermaid pre code').forEach(c => codes.add(c));
+            document.querySelectorAll('code[data-lang="mermaid"]').forEach(c => codes.add(c));
+            codes.forEach(code => {
+                const wrapper = code.closest('.language-mermaid') || code.closest('pre') || code.parentElement;
+                const div = document.createElement('div');
+                div.className = 'mermaid';
+                div.textContent = code.textContent;
                 wrapper.replaceWith(div);
             });
         }
-
         function runMermaid() {
-            if (!window.mermaid) {
-                setTimeout(runMermaid, 50);
-                return;
-            }
-            try {
-                mermaid.initialize({ startOnLoad: false, securityLevel: "loose" });
-                mermaid.run({ querySelector: ".mermaid" });
-            } catch (e) {
-                console.error("Mermaid render error:", e);
-            }
+            if (!window.mermaid) { setTimeout(runMermaid, 50); return; }
+            mermaid.initialize({ startOnLoad: false, securityLevel: 'loose' });
+            mermaid.run({ querySelector: '.mermaid' });
         }
-
-        function init() {
-            toMermaidDivs();
-            runMermaid();
-        }
-        document.readyState === "loading"
-            ? document.addEventListener("DOMContentLoaded", init)
-            : init();
+        function init(){ toMermaidDivs(); runMermaid(); }
+        (document.readyState === 'loading') ? document.addEventListener('DOMContentLoaded', init) : init();
     })();
 </script>
