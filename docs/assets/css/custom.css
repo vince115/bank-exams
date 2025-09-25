@@ -1,0 +1,19 @@
+/* 色彩 */
+.text-red   { color: #c62828; }
+.text-green { color: #2e7d32; }
+.text-blue  { color: #1565c0; }
+.text-gray { color: #6b7280; }
+
+/* 反白/標註 */
+.mark-yellow { background: #fff3cd; padding: .1em .25em; border-radius: .25rem; }
+
+/* 字級（相對於預設字體大小） */
+.fs-12 { font-size: 12px; }
+.fs-14 { font-size: 14px; }
+.fs-18 { font-size: 18px; }
+.fs-24 { font-size: 24px; }
+
+/* 小徽章 */
+.badge { display: inline-block; padding: .2em .6em; border-radius: 999px; font-size: .85em; background: #eee; }
+.badge-red { background: #ef9a9a; }
+.badge-blue{ background: #90caf9; }
